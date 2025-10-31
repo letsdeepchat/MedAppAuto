@@ -1,0 +1,826 @@
+{
+  "doctors": [
+    {
+      "id": "dr_smith",
+      "name": "Dr. Emily Smith",
+      "specialty": "Family Medicine",
+      "schedule": {
+        "monday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"},
+          {"start": "13:00", "end": "17:00", "type": "clinic"}
+        ],
+        "tuesday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"},
+          {"start": "13:00", "end": "17:00", "type": "clinic"}
+        ],
+        "wednesday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"},
+          {"start": "13:00", "end": "17:00", "type": "clinic"}
+        ],
+        "thursday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"},
+          {"start": "13:00", "end": "17:00", "type": "clinic"}
+        ],
+        "friday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"},
+          {"start": "13:00", "end": "16:00", "type": "clinic"}
+        ],
+        "saturday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"}
+        ],
+        "sunday": []
+      },
+      "appointment_types": ["General Consultation", "Preventive Care", "Chronic Disease Management"],
+      "languages": ["English", "Spanish"]
+    },
+    {
+      "id": "dr_johnson",
+      "name": "Dr. Michael Johnson",
+      "specialty": "Internal Medicine",
+      "schedule": {
+        "monday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "tuesday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "wednesday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "thursday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "friday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "17:00", "type": "clinic"}
+        ],
+        "saturday": [],
+        "sunday": []
+      },
+      "appointment_types": ["General Consultation", "Follow-up", "Specialist Referral"],
+      "languages": ["English", "French"]
+    },
+    {
+      "id": "dr_davis",
+      "name": "Dr. Sarah Davis",
+      "specialty": "Pediatrics",
+      "schedule": {
+        "monday": [
+          {"start": "08:30", "end": "12:30", "type": "clinic"},
+          {"start": "13:30", "end": "17:30", "type": "clinic"}
+        ],
+        "tuesday": [
+          {"start": "08:30", "end": "12:30", "type": "clinic"},
+          {"start": "13:30", "end": "17:30", "type": "clinic"}
+        ],
+        "wednesday": [
+          {"start": "08:30", "end": "12:30", "type": "clinic"},
+          {"start": "13:30", "end": "17:30", "type": "clinic"}
+        ],
+        "thursday": [
+          {"start": "08:30", "end": "12:30", "type": "clinic"},
+          {"start": "13:30", "end": "17:30", "type": "clinic"}
+        ],
+        "friday": [
+          {"start": "08:30", "end": "12:30", "type": "clinic"},
+          {"start": "13:30", "end": "16:30", "type": "clinic"}
+        ],
+        "saturday": [
+          {"start": "09:00", "end": "14:00", "type": "clinic"}
+        ],
+        "sunday": []
+      },
+      "appointment_types": ["Well Child Visit", "Sick Visit", "Vaccinations", "Developmental Screening"],
+      "languages": ["English", "Mandarin"]
+    },
+    {
+      "id": "dr_brown",
+      "name": "Dr. David Brown",
+      "specialty": "Cardiology",
+      "schedule": {
+        "monday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"},
+          {"start": "13:00", "end": "17:00", "type": "clinic"}
+        ],
+        "tuesday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"},
+          {"start": "13:00", "end": "17:00", "type": "clinic"}
+        ],
+        "wednesday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"},
+          {"start": "13:00", "end": "17:00", "type": "clinic"}
+        ],
+        "thursday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"},
+          {"start": "13:00", "end": "17:00", "type": "clinic"}
+        ],
+        "friday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"},
+          {"start": "13:00", "end": "16:00", "type": "clinic"}
+        ],
+        "saturday": [],
+        "sunday": []
+      },
+      "appointment_types": ["Consultation", "Follow-up", "ECG", "Stress Test", "Echocardiogram"],
+      "languages": ["English", "German"]
+    },
+    {
+      "id": "dr_wilson",
+      "name": "Dr. Jennifer Wilson",
+      "specialty": "Dermatology",
+      "schedule": {
+        "monday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "tuesday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "wednesday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "thursday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "friday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "17:00", "type": "clinic"}
+        ],
+        "saturday": [],
+        "sunday": []
+      },
+      "appointment_types": ["Consultation", "Follow-up", "Skin Biopsy", "Mohs Surgery", "Laser Treatment"],
+      "languages": ["English", "Italian"]
+    },
+    {
+      "id": "dr_taylor",
+      "name": "Dr. Robert Taylor",
+      "specialty": "Orthopedics",
+      "schedule": {
+        "monday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"},
+          {"start": "13:00", "end": "17:00", "type": "clinic"}
+        ],
+        "tuesday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"},
+          {"start": "13:00", "end": "17:00", "type": "clinic"}
+        ],
+        "wednesday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"},
+          {"start": "13:00", "end": "17:00", "type": "clinic"}
+        ],
+        "thursday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"},
+          {"start": "13:00", "end": "17:00", "type": "clinic"}
+        ],
+        "friday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"},
+          {"start": "13:00", "end": "16:00", "type": "clinic"}
+        ],
+        "saturday": [],
+        "sunday": []
+      },
+      "appointment_types": ["Consultation", "Follow-up", "X-ray", "MRI", "Physical Therapy"],
+      "languages": ["English", "Portuguese"]
+    },
+    {
+      "id": "dr_anderson",
+      "name": "Dr. Lisa Anderson",
+      "specialty": "Gynecology",
+      "schedule": {
+        "monday": [
+          {"start": "08:30", "end": "12:30", "type": "clinic"},
+          {"start": "13:30", "end": "17:30", "type": "clinic"}
+        ],
+        "tuesday": [
+          {"start": "08:30", "end": "12:30", "type": "clinic"},
+          {"start": "13:30", "end": "17:30", "type": "clinic"}
+        ],
+        "wednesday": [
+          {"start": "08:30", "end": "12:30", "type": "clinic"},
+          {"start": "13:30", "end": "17:30", "type": "clinic"}
+        ],
+        "thursday": [
+          {"start": "08:30", "end": "12:30", "type": "clinic"},
+          {"start": "13:30", "end": "17:30", "type": "clinic"}
+        ],
+        "friday": [
+          {"start": "08:30", "end": "12:30", "type": "clinic"},
+          {"start": "13:30", "end": "16:30", "type": "clinic"}
+        ],
+        "saturday": [],
+        "sunday": []
+      },
+      "appointment_types": ["Annual Exam", "Consultation", "Pap Smear", "Mammogram", "Birth Control"],
+      "languages": ["English", "Korean"]
+    },
+    {
+      "id": "dr_thomas",
+      "name": "Dr. James Thomas",
+      "specialty": "Ophthalmology",
+      "schedule": {
+        "monday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "tuesday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "wednesday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "thursday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "friday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "17:00", "type": "clinic"}
+        ],
+        "saturday": [],
+        "sunday": []
+      },
+      "appointment_types": ["Eye Exam", "Consultation", "Glaucoma Screening", "Cataract Surgery", "LASIK"],
+      "languages": ["English", "Vietnamese"]
+    },
+    {
+      "id": "dr_jackson",
+      "name": "Dr. Maria Jackson",
+      "specialty": "Psychiatry",
+      "schedule": {
+        "monday": [
+          {"start": "10:00", "end": "14:00", "type": "clinic"},
+          {"start": "15:00", "end": "19:00", "type": "clinic"}
+        ],
+        "tuesday": [
+          {"start": "10:00", "end": "14:00", "type": "clinic"},
+          {"start": "15:00", "end": "19:00", "type": "clinic"}
+        ],
+        "wednesday": [
+          {"start": "10:00", "end": "14:00", "type": "clinic"},
+          {"start": "15:00", "end": "19:00", "type": "clinic"}
+        ],
+        "thursday": [
+          {"start": "10:00", "end": "14:00", "type": "clinic"},
+          {"start": "15:00", "end": "19:00", "type": "clinic"}
+        ],
+        "friday": [
+          {"start": "10:00", "end": "14:00", "type": "clinic"},
+          {"start": "15:00", "end": "18:00", "type": "clinic"}
+        ],
+        "saturday": [],
+        "sunday": []
+      },
+      "appointment_types": ["Initial Consultation", "Follow-up", "Medication Management", "Therapy Session"],
+      "languages": ["English", "Russian"]
+    },
+    {
+      "id": "dr_white",
+      "name": "Dr. Kevin White",
+      "specialty": "Emergency Medicine",
+      "schedule": {
+        "monday": [
+          {"start": "07:00", "end": "19:00", "type": "emergency"}
+        ],
+        "tuesday": [
+          {"start": "07:00", "end": "19:00", "type": "emergency"}
+        ],
+        "wednesday": [
+          {"start": "07:00", "end": "19:00", "type": "emergency"}
+        ],
+        "thursday": [
+          {"start": "07:00", "end": "19:00", "type": "emergency"}
+        ],
+        "friday": [
+          {"start": "07:00", "end": "19:00", "type": "emergency"}
+        ],
+        "saturday": [
+          {"start": "07:00", "end": "19:00", "type": "emergency"}
+        ],
+        "sunday": [
+          {"start": "07:00", "end": "19:00", "type": "emergency"}
+        ]
+      },
+      "appointment_types": ["Emergency Care", "Urgent Care", "Trauma Care"],
+      "languages": ["English", "Arabic"]
+    },
+    {
+      "id": "dr_harris",
+      "name": "Dr. Amanda Harris",
+      "specialty": "Neurology",
+      "schedule": {
+        "monday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "tuesday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "wednesday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "thursday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "friday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "17:00", "type": "clinic"}
+        ],
+        "saturday": [],
+        "sunday": []
+      },
+      "appointment_types": ["Consultation", "Follow-up", "EEG", "MRI", "Neurological Exam"],
+      "languages": ["English", "Hindi"]
+    },
+    {
+      "id": "dr_martin",
+      "name": "Dr. Christopher Martin",
+      "specialty": "Urology",
+      "schedule": {
+        "monday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"},
+          {"start": "13:00", "end": "17:00", "type": "clinic"}
+        ],
+        "tuesday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"},
+          {"start": "13:00", "end": "17:00", "type": "clinic"}
+        ],
+        "wednesday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"},
+          {"start": "13:00", "end": "17:00", "type": "clinic"}
+        ],
+        "thursday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"},
+          {"start": "13:00", "end": "17:00", "type": "clinic"}
+        ],
+        "friday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"},
+          {"start": "13:00", "end": "16:00", "type": "clinic"}
+        ],
+        "saturday": [],
+        "sunday": []
+      },
+      "appointment_types": ["Consultation", "Follow-up", "PSA Test", "Ultrasound", "Biopsy"],
+      "languages": ["English", "Urdu"]
+    },
+    {
+      "id": "dr_garcia",
+      "name": "Dr. Sofia Garcia",
+      "specialty": "Endocrinology",
+      "schedule": {
+        "monday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "tuesday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "wednesday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "thursday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "friday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "17:00", "type": "clinic"}
+        ],
+        "saturday": [],
+        "sunday": []
+      },
+      "appointment_types": ["Diabetes Consultation", "Thyroid Evaluation", "Hormone Therapy", "Blood Tests"],
+      "languages": ["English", "Spanish"]
+    },
+    {
+      "id": "dr_lee",
+      "name": "Dr. Daniel Lee",
+      "specialty": "Oncology",
+      "schedule": {
+        "monday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"},
+          {"start": "13:00", "end": "17:00", "type": "clinic"}
+        ],
+        "tuesday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"},
+          {"start": "13:00", "end": "17:00", "type": "clinic"}
+        ],
+        "wednesday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"},
+          {"start": "13:00", "end": "17:00", "type": "clinic"}
+        ],
+        "thursday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"},
+          {"start": "13:00", "end": "17:00", "type": "clinic"}
+        ],
+        "friday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"},
+          {"start": "13:00", "end": "16:00", "type": "clinic"}
+        ],
+        "saturday": [],
+        "sunday": []
+      },
+      "appointment_types": ["Initial Consultation", "Follow-up", "Chemotherapy", "Radiation Therapy", "Biopsy"],
+      "languages": ["English", "Cantonese"]
+    },
+    {
+      "id": "dr_clark",
+      "name": "Dr. Rachel Clark",
+      "specialty": "Physical Medicine & Rehabilitation",
+      "schedule": {
+        "monday": [
+          {"start": "08:30", "end": "12:30", "type": "clinic"},
+          {"start": "13:30", "end": "17:30", "type": "clinic"}
+        ],
+        "tuesday": [
+          {"start": "08:30", "end": "12:30", "type": "clinic"},
+          {"start": "13:30", "end": "17:30", "type": "clinic"}
+        ],
+        "wednesday": [
+          {"start": "08:30", "end": "12:30", "type": "clinic"},
+          {"start": "13:30", "end": "17:30", "type": "clinic"}
+        ],
+        "thursday": [
+          {"start": "08:30", "end": "12:30", "type": "clinic"},
+          {"start": "13:30", "end": "17:30", "type": "clinic"}
+        ],
+        "friday": [
+          {"start": "08:30", "end": "12:30", "type": "clinic"},
+          {"start": "13:30", "end": "16:30", "type": "clinic"}
+        ],
+        "saturday": [],
+        "sunday": []
+      },
+      "appointment_types": ["Initial Evaluation", "Follow-up", "Physical Therapy", "Pain Management", "Rehabilitation"],
+      "languages": ["English", "Tagalog"]
+    },
+    {
+      "id": "dr_rodriguez",
+      "name": "Dr. Carlos Rodriguez",
+      "specialty": "Radiology",
+      "schedule": {
+        "monday": [
+          {"start": "07:00", "end": "15:00", "type": "radiology"}
+        ],
+        "tuesday": [
+          {"start": "07:00", "end": "15:00", "type": "radiology"}
+        ],
+        "wednesday": [
+          {"start": "07:00", "end": "15:00", "type": "radiology"}
+        ],
+        "thursday": [
+          {"start": "07:00", "end": "15:00", "type": "radiology"}
+        ],
+        "friday": [
+          {"start": "07:00", "end": "15:00", "type": "radiology"}
+        ],
+        "saturday": [],
+        "sunday": []
+      },
+      "appointment_types": ["X-ray", "CT Scan", "MRI", "Ultrasound", "Mammogram"],
+      "languages": ["English", "Spanish"]
+    },
+    {
+      "id": "dr_chen",
+      "name": "Dr. Wei Chen",
+      "specialty": "Anesthesiology",
+      "schedule": {
+        "monday": [
+          {"start": "06:00", "end": "14:00", "type": "surgery"}
+        ],
+        "tuesday": [
+          {"start": "06:00", "end": "14:00", "type": "surgery"}
+        ],
+        "wednesday": [
+          {"start": "06:00", "end": "14:00", "type": "surgery"}
+        ],
+        "thursday": [
+          {"start": "06:00", "end": "14:00", "type": "surgery"}
+        ],
+        "friday": [
+          {"start": "06:00", "end": "14:00", "type": "surgery"}
+        ],
+        "saturday": [],
+        "sunday": []
+      },
+      "appointment_types": ["Pre-operative Evaluation", "Anesthesia Consultation"],
+      "languages": ["English", "Mandarin"]
+    },
+    {
+      "id": "dr_patel",
+      "name": "Dr. Priya Patel",
+      "specialty": "Nephrology",
+      "schedule": {
+        "monday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "tuesday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "wednesday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "thursday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "friday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "17:00", "type": "clinic"}
+        ],
+        "saturday": [],
+        "sunday": []
+      },
+      "appointment_types": ["Kidney Disease Consultation", "Dialysis Management", "Transplant Evaluation"],
+      "languages": ["English", "Gujarati"]
+    },
+    {
+      "id": "dr_kim",
+      "name": "Dr. Ji-hoon Kim",
+      "specialty": "Rheumatology",
+      "schedule": {
+        "monday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"},
+          {"start": "13:00", "end": "17:00", "type": "clinic"}
+        ],
+        "tuesday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"},
+          {"start": "13:00", "end": "17:00", "type": "clinic"}
+        ],
+        "wednesday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"},
+          {"start": "13:00", "end": "17:00", "type": "clinic"}
+        ],
+        "thursday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"},
+          {"start": "13:00", "end": "17:00", "type": "clinic"}
+        ],
+        "friday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"},
+          {"start": "13:00", "end": "16:00", "type": "clinic"}
+        ],
+        "saturday": [],
+        "sunday": []
+      },
+      "appointment_types": ["Arthritis Consultation", "Autoimmune Disease Management", "Joint Injection"],
+      "languages": ["English", "Korean"]
+    },
+    {
+      "id": "dr_singh",
+      "name": "Dr. Raj Singh",
+      "specialty": "Gastroenterology",
+      "schedule": {
+        "monday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "tuesday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "wednesday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "thursday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "friday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "17:00", "type": "clinic"}
+        ],
+        "saturday": [],
+        "sunday": []
+      },
+      "appointment_types": ["Digestive Health Consultation", "Colonoscopy", "Endoscopy", "Liver Disease Management"],
+      "languages": ["English", "Punjabi"]
+    },
+    {
+      "id": "dr_nguyen",
+      "name": "Dr. Minh Nguyen",
+      "specialty": "Pulmonology",
+      "schedule": {
+        "monday": [
+          {"start": "08:30", "end": "12:30", "type": "clinic"},
+          {"start": "13:30", "end": "17:30", "type": "clinic"}
+        ],
+        "tuesday": [
+          {"start": "08:30", "end": "12:30", "type": "clinic"},
+          {"start": "13:30", "end": "17:30", "type": "clinic"}
+        ],
+        "wednesday": [
+          {"start": "08:30", "end": "12:30", "type": "clinic"},
+          {"start": "13:30", "end": "17:30", "type": "clinic"}
+        ],
+        "thursday": [
+          {"start": "08:30", "end": "12:30", "type": "clinic"},
+          {"start": "13:30", "end": "17:30", "type": "clinic"}
+        ],
+        "friday": [
+          {"start": "08:30", "end": "12:30", "type": "clinic"},
+          {"start": "13:30", "end": "16:30", "type": "clinic"}
+        ],
+        "saturday": [],
+        "sunday": []
+      },
+      "appointment_types": ["Lung Function Test", "Asthma Management", "COPD Treatment", "Sleep Study"],
+      "languages": ["English", "Vietnamese"]
+    },
+    {
+      "id": "dr_lopez",
+      "name": "Dr. Isabella Lopez",
+      "specialty": "Infectious Diseases",
+      "schedule": {
+        "monday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "tuesday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "wednesday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "thursday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "friday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "17:00", "type": "clinic"}
+        ],
+        "saturday": [],
+        "sunday": []
+      },
+      "appointment_types": ["Infection Consultation", "Travel Medicine", "HIV Care", "Hepatitis Management"],
+      "languages": ["English", "Spanish"]
+    },
+    {
+      "id": "dr_murphy",
+      "name": "Dr. Sean Murphy",
+      "specialty": "Sports Medicine",
+      "schedule": {
+        "monday": [
+          {"start": "07:00", "end": "11:00", "type": "clinic"},
+          {"start": "12:00", "end": "16:00", "type": "clinic"}
+        ],
+        "tuesday": [
+          {"start": "07:00", "end": "11:00", "type": "clinic"},
+          {"start": "12:00", "end": "16:00", "type": "clinic"}
+        ],
+        "wednesday": [
+          {"start": "07:00", "end": "11:00", "type": "clinic"},
+          {"start": "12:00", "end": "16:00", "type": "clinic"}
+        ],
+        "thursday": [
+          {"start": "07:00", "end": "11:00", "type": "clinic"},
+          {"start": "12:00", "end": "16:00", "type": "clinic"}
+        ],
+        "friday": [
+          {"start": "07:00", "end": "11:00", "type": "clinic"},
+          {"start": "12:00", "end": "15:00", "type": "clinic"}
+        ],
+        "saturday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"}
+        ],
+        "sunday": []
+      },
+      "appointment_types": ["Sports Injury Evaluation", "Performance Enhancement", "Concussion Management", "Physical Therapy"],
+      "languages": ["English", "Irish"]
+    },
+    {
+      "id": "dr_khan",
+      "name": "Dr. Fatima Khan",
+      "specialty": "Allergy & Immunology",
+      "schedule": {
+        "monday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"},
+          {"start": "13:00", "end": "17:00", "type": "clinic"}
+        ],
+        "tuesday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"},
+          {"start": "13:00", "end": "17:00", "type": "clinic"}
+        ],
+        "wednesday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"},
+          {"start": "13:00", "end": "17:00", "type": "clinic"}
+        ],
+        "thursday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"},
+          {"start": "13:00", "end": "17:00", "type": "clinic"}
+        ],
+        "friday": [
+          {"start": "08:00", "end": "12:00", "type": "clinic"},
+          {"start": "13:00", "end": "16:00", "type": "clinic"}
+        ],
+        "saturday": [],
+        "sunday": []
+      },
+      "appointment_types": ["Allergy Testing", "Immunotherapy", "Asthma Management", "Food Allergy Consultation"],
+      "languages": ["English", "Urdu"]
+    },
+    {
+      "id": "dr_young",
+      "name": "Dr. Benjamin Young",
+      "specialty": "Plastic Surgery",
+      "schedule": {
+        "monday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "tuesday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "wednesday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "thursday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "18:00", "type": "clinic"}
+        ],
+        "friday": [
+          {"start": "09:00", "end": "13:00", "type": "clinic"},
+          {"start": "14:00", "end": "17:00", "type": "clinic"}
+        ],
+        "saturday": [],
+        "sunday": []
+      },
+      "appointment_types": ["Cosmetic Consultation", "Reconstructive Surgery", "Skin Cancer Treatment", "Hand Surgery"],
+      "languages": ["English", "Japanese"]
+    },
+    {
+      "id": "dr_adams",
+      "name": "Dr. Olivia Adams",
+      "specialty": "Pathology",
+      "schedule": {
+        "monday": [
+          {"start": "08:00", "end": "16:00", "type": "lab"}
+        ],
+        "tuesday": [
+          {"start": "08:00", "end": "16:00", "type": "lab"}
+        ],
+        "wednesday": [
+          {"start": "08:00", "end": "16:00", "type": "lab"}
+        ],
+        "thursday": [
+          {"start": "08:00", "end": "16:00", "type": "lab"}
+        ],
+        "friday": [
+          {"start": "08:00", "end": "16:00", "type": "lab"}
+        ],
+        "saturday": [],
+        "sunday": []
+      },
+      "appointment_types": ["Biopsy Analysis", "Blood Test Review", "Tissue Analysis"],
+      "languages": ["English", "French"]
+    },
+    {
+      "id": "dr_baker",
+      "name": "Dr. Nathan Baker",
+      "specialty": "General Surgery",
+      "schedule": {
+        "monday": [
+          {"start": "07:00", "end": "15:00", "type": "surgery"}
+        ],
+        "tuesday": [
+          {"start": "07:00", "end": "15:00", "type": "surgery"}
+        ],
+        "wednesday": [
+          {"start": "07:00", "end": "15:00", "type": "surgery"}
+        ],
+        "thursday": [
+          {"start": "07:00", "end": "15:00", "type": "surgery"}
+        ],
+        "friday": [
+          {"start": "07:00", "end": "15:00", "type": "surgery"}
+        ],
+        "saturday": [],
+        "sunday": []
+      },
+      "appointment_types": ["Pre-operative Consultation", "Post-operative Follow-up", "Surgical Procedure"],
+      "languages": ["English", "Thai"]
+    }
+  ]
+}
