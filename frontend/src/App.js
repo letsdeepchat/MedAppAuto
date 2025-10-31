@@ -30,7 +30,7 @@ import {
   Chat as ChatIcon,
   Logout as LogoutIcon
 } from '@mui/icons-material';
-import './App.css';
+// import './App.css';
 
 const theme = createTheme({
   palette: {
