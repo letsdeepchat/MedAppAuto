@@ -13,8 +13,9 @@ from datetime import datetime, timezone
 import os
 
 from agent.conversation_agent import ConversationAgent
-from rag.rag_service import RAGService
-from api.calendly_service import CalendlyService
+from services.rag_service import RAGService
+from services.calendly_service import CalendlyService
+from services.database_service import DatabaseService
 from tools.scheduling_logic import SchedulingLogic
 from models.appointment import Appointment, AppointmentCreate, AppointmentUpdate
 from config import settings
@@ -43,6 +44,7 @@ app.add_middleware(
 conversation_agent = ConversationAgent()
 rag_service = RAGService()
 calendly_service = CalendlyService()
+database_service = DatabaseService()
 scheduling_logic = SchedulingLogic()
 
 # Pydantic models for API
@@ -103,10 +105,10 @@ async def chat_endpoint(request: ChatRequest):
 async def faq_endpoint(request: FAQRequest):
     """FAQ query endpoint using RAG"""
     try:
-        # For now, return mock response
+        result = await rag_service.query_faqs(request.query)
         return {
-            "answer": "Our clinic hours are Monday-Friday 9AM-5PM. We offer various appointment types including general consultation, follow-up visits, physical exams, and specialist consultations.",
-            "sources": ["clinic_info.json"]
+            "answer": result["answer"],
+            "sources": result["sources"]
         }
     except Exception as e:
         logger.error(f"FAQ endpoint error: {e}")
@@ -120,12 +122,15 @@ async def availability_endpoint(appointment_type: str, preferred_date: Optional[
         if not appointment_type:
             raise HTTPException(status_code=400, detail="Appointment type is required")
 
-        # For now, return mock slots
-        slots = [
-            {"start_time": "2025-11-01T10:00:00Z", "end_time": "2025-11-01T10:30:00Z"},
-            {"start_time": "2025-11-01T11:00:00Z", "end_time": "2025-11-01T11:30:00Z"},
-            {"start_time": "2025-11-01T14:00:00Z", "end_time": "2025-11-01T14:30:00Z"}
-        ]
+        # Use database service to get available slots
+        if preferred_date:
+            slots = await database_service.get_available_slots(appointment_type, preferred_date)
+        else:
+            # Default to today if no date provided
+            from datetime import datetime
+            today = datetime.now().strftime("%Y-%m-%d")
+            slots = await database_service.get_available_slots(appointment_type, today)
+
         return {"slots": slots}
     except HTTPException:
         raise
@@ -141,15 +146,66 @@ async def booking_endpoint(request: BookingRequest, background_tasks: Background
         if not request.start_time or not request.appointment_type:
             raise HTTPException(status_code=400, detail="Missing required fields")
 
-        # For now, just return success - implement proper validation later
+        # Check availability first
+        appointment_type = request.appointment_type
+        start_time = request.start_time
+
+        # Calculate end time based on appointment type
+        duration_map = {
+            "General Consultation": 30,
+            "Follow-up": 15,
+            "Physical Exam": 45,
+            "Specialist Consultation": 60
+        }
+        duration = duration_map.get(appointment_type, 30)
+
+        from datetime import datetime, timedelta
+        from dateutil import parser
+        start_dt = parser.parse(start_time)
+        end_dt = start_dt + timedelta(minutes=duration)
+
+        # Check for conflicts
+        is_available = await database_service.check_availability(
+            appointment_type, start_time, duration
+        )
+
+        if not is_available:
+            raise HTTPException(status_code=409, detail="Time slot not available")
+
+        # Generate booking ID
         booking_id = f"APT{datetime.now().strftime('%Y%m%d%H%M%S')}"
+
+        # Prepare appointment data
+        appointment_data = {
+            "booking_id": booking_id,
+            "appointment_type": appointment_type,
+            "start_time": start_time,
+            "end_time": end_dt.isoformat(),
+            "patient_info": request.patient_info,
+            "status": "confirmed",
+            "calendly_event_id": None
+        }
+
+        # Save to database
+        created_appointment = await database_service.create_appointment(appointment_data)
+
+        # Schedule Calendly event in background if configured
+        if settings.CALENDLY_API_KEY:
+            background_tasks.add_task(
+                create_calendly_event_background,
+                booking_id,
+                appointment_type,
+                start_time,
+                request.patient_info
+            )
 
         return {
             "booking_id": booking_id,
             "status": "confirmed",
             "details": {
-                "appointment_type": request.appointment_type,
-                "start_time": request.start_time,
+                "appointment_type": appointment_type,
+                "start_time": start_time,
+                "end_time": end_dt.isoformat(),
                 "patient_info": request.patient_info
             }
         }
@@ -167,11 +223,69 @@ async def reschedule_endpoint(appointment_id: str, request: BookingRequest):
         if not appointment_id or not appointment_id.startswith('APT'):
             raise HTTPException(status_code=400, detail="Invalid appointment ID")
 
-        # For now, just return success - implement proper logic later
+        # Check if appointment exists
+        existing_appointment = await database_service.get_appointment(appointment_id)
+        if not existing_appointment:
+            raise HTTPException(status_code=404, detail="Appointment not found")
+
+        # Check availability for new time
+        appointment_type = request.appointment_type
+        start_time = request.start_time
+
+        duration_map = {
+            "General Consultation": 30,
+            "Follow-up": 15,
+            "Physical Exam": 45,
+            "Specialist Consultation": 60
+        }
+        duration = duration_map.get(appointment_type, 30)
+
+        from datetime import timedelta
+        from dateutil import parser
+        start_dt = parser.parse(start_time)
+        end_dt = start_dt + timedelta(minutes=duration)
+
+        is_available = await database_service.check_availability(
+            appointment_type, start_time, duration
+        )
+
+        if not is_available:
+            raise HTTPException(status_code=409, detail="New time slot not available")
+
+        # Update appointment
+        update_data = {
+            "appointment_type": appointment_type,
+            "start_time": start_time,
+            "end_time": end_dt.isoformat(),
+            "patient_info": request.patient_info
+        }
+
+        updated_appointment = await database_service.update_appointment(appointment_id, update_data)
+
+        # Cancel old Calendly event and create new one if configured
+        if settings.CALENDLY_API_KEY and existing_appointment.get("calendly_event_id"):
+            # Cancel old event
+            await calendly_service.cancel_event(existing_appointment["calendly_event_id"])
+
+            # Create new event
+            result = await calendly_service.create_event(
+                appointment_id, appointment_type, start_time, request.patient_info
+            )
+
+            if "event_id" in result and not result.get("mock"):
+                await database_service.update_appointment(appointment_id, {
+                    "calendly_event_id": result["event_id"]
+                })
+
         return {
             "booking_id": appointment_id,
             "status": "rescheduled",
-            "details": {"message": "Appointment rescheduled successfully"}
+            "details": {
+                "appointment_type": appointment_type,
+                "start_time": start_time,
+                "end_time": end_dt.isoformat(),
+                "patient_info": request.patient_info
+            }
         }
     except HTTPException:
         raise
@@ -187,7 +301,20 @@ async def cancel_endpoint(appointment_id: str, reason: Optional[str] = None):
         if not appointment_id or not appointment_id.startswith('APT'):
             raise HTTPException(status_code=400, detail="Invalid appointment ID")
 
-        # For now, just return success - implement proper logic later
+        # Check if appointment exists
+        existing_appointment = await database_service.get_appointment(appointment_id)
+        if not existing_appointment:
+            raise HTTPException(status_code=404, detail="Appointment not found")
+
+        # Cancel in database
+        cancelled = await database_service.cancel_appointment(appointment_id)
+        if not cancelled:
+            raise HTTPException(status_code=500, detail="Failed to cancel appointment")
+
+        # Cancel Calendly event if it exists
+        if settings.CALENDLY_API_KEY and existing_appointment.get("calendly_event_id"):
+            await calendly_service.cancel_event(existing_appointment["calendly_event_id"])
+
         return {"message": "Appointment cancelled successfully"}
     except HTTPException:
         raise
@@ -203,18 +330,12 @@ async def get_appointment_endpoint(appointment_id: str):
         if not appointment_id or not appointment_id.startswith('APT'):
             raise HTTPException(status_code=400, detail="Invalid appointment ID")
 
-        # For now, return mock appointment data
-        return {
-            "id": appointment_id,
-            "appointment_type": "General Consultation",
-            "start_time": "2025-11-01T10:00:00Z",
-            "patient_info": {
-                "name": "John Doe",
-                "phone": "555-123-4567",
-                "email": "john@example.com"
-            },
-            "status": "confirmed"
-        }
+        # Get appointment from database
+        appointment = await database_service.get_appointment(appointment_id)
+        if not appointment:
+            raise HTTPException(status_code=404, detail="Appointment not found")
+
+        return appointment
     except HTTPException:
         raise
     except Exception as e:
@@ -281,11 +402,33 @@ async def general_exception_handler(request, exc):
         content={"detail": "Internal server error"}
     )
 
+# Background task for Calendly event creation
+async def create_calendly_event_background(booking_id: str, appointment_type: str,
+                                         start_time: str, patient_info: Dict[str, str]):
+    """Background task to create Calendly event"""
+    try:
+        result = await calendly_service.create_event(
+            booking_id, appointment_type, start_time, patient_info
+        )
+
+        # Update appointment with Calendly event ID if successful
+        if "event_id" in result and not result.get("mock"):
+            await database_service.update_appointment(booking_id, {
+                "calendly_event_id": result["event_id"]
+            })
+
+        logger.info(f"Calendly event created for booking {booking_id}")
+    except Exception as e:
+        logger.error(f"Failed to create Calendly event for booking {booking_id}: {e}")
+
 # Startup event
 @app.on_event("startup")
 async def startup_event():
     """Initialize services on startup"""
     try:
+        # Initialize database service
+        await database_service.initialize()
+
         # Initialize RAG service
         await rag_service.initialize()
 
