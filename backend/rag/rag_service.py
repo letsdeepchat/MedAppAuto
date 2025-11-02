@@ -274,17 +274,17 @@ class RAGService:
                           for keyword in query_lower.split()):
                         relevant_info.append(f"{policy_key.replace('_', ' ').title()}: {policy_value}")
 
+                # Prioritize operating hours for hours-related queries
+                hours = clinic.get("operating_hours", {})
+                if 'hours' in query_lower or any(word in query_lower for word in ['hour', 'time', 'open', 'close']):
+                    for day, time_range in hours.items():
+                        relevant_info.insert(0, f"{day.title()}: {time_range}")
+
                 # Search services
                 services = clinic.get("services", [])
                 for service in services:
                     if any(keyword in service.lower() for keyword in query_lower.split()):
                         relevant_info.append(f"We offer {service} services.")
-
-                # Search operating hours
-                hours = clinic.get("operating_hours", {})
-                if any(word in query_lower for word in ['hour', 'time', 'open', 'close']):
-                    for day, time_range in hours.items():
-                        relevant_info.append(f"{day.title()}: {time_range}")
 
             # Search doctor data
             if self.doctor_data:

@@ -130,7 +130,7 @@ async def booking_endpoint(request: BookingRequest, background_tasks: Background
     """Book an appointment"""
     try:
         # Validate booking
-        validation = scheduling_logic.validate_booking(
+        validation = await scheduling_logic.validate_booking(
             request.appointment_type,
             request.start_time,
             request.patient_info
