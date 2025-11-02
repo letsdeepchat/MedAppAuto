@@ -44,7 +44,7 @@ class Settings(BaseSettings):
     port: int = Field(default=8000, alias="PORT")
 
     # Development Settings
-    debug: bool = Field(default=True, alias="DEBUG")
+    debug: str = Field(default="True", alias="DEBUG")
     log_level: str = Field(default="INFO", alias="LOG_LEVEL")
 
     model_config = {

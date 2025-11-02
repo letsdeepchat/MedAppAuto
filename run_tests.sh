@@ -1,2 +1,2 @@
 #!/bin/bash
-pytest tests/ 2> errors.txt
+pytest tests/ > errors.txt 2>&1

@@ -187,7 +187,8 @@ class TestConversationAgent:
         message = "John Smith"
         info = agent._extract_patient_info(message)
         assert info.get('name') == 'John Smith'
-        assert 'phone' not in info
+        assert info.get('phone') == ''
+        assert info.get('email') == ''
 
     def test_conversation_history(self, agent):
         """Test conversation history management"""

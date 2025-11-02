@@ -1,0 +1,357 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.7, pytest-7.4.0, pluggy-1.6.0
+rootdir: c:\Users\deepa\Documents\MedAppAuto
+plugins: anyio-4.11.0, cov-5.0.0
+collected 82 items
+
+tests\test_api_endpoints.py .............................                [ 35%]
+tests\test_conversation_agent.py .FF..............ssss                   [ 60%]
+tests\test_edge_cases.py ............F......                             [ 84%]
+tests\test_integration.py F.FFF..F.F.sF                                  [100%]
+
+================================== FAILURES ===================================
+__________ TestConversationAgent.test_intent_classification_booking ___________
+
+self = <tests.test_conversation_agent.TestConversationAgent object at 0x000001F66E1091D0>
+agent = <backend.agent.conversation_agent.ConversationAgent object at 0x000001F66E108CD0>
+
+    def test_intent_classification_booking(self, agent):
+        """Test booking-related intent classification"""
+        # Direct booking intents
+        assert agent._classify_intent("I want to book an appointment") == 'booking_request'
+        assert agent._classify_intent("Schedule a consultation") == 'booking_request'
+        assert agent._classify_intent("Make an appointment") == 'booking_request'
+    
+        # Rescheduling intents
+>       assert agent._classify_intent("I need to reschedule") == 'reschedule_request'
+E       AssertionError: assert 'booking_request' == 'reschedule_request'
+E         - reschedule_request
+E         + booking_request
+
+tests\test_conversation_agent.py:34: AssertionError
+____________ TestConversationAgent.test_intent_classification_faq _____________
+
+self = <tests.test_conversation_agent.TestConversationAgent object at 0x000001F66E0116E0>
+agent = <backend.agent.conversation_agent.ConversationAgent object at 0x000001F66E109BD0>
+
+    def test_intent_classification_faq(self, agent):
+        """Test FAQ-related intent classification"""
+        assert agent._classify_intent("What are your hours?") == 'faq_question'
+        assert agent._classify_intent("Where are you located?") == 'faq_question'
+        assert agent._classify_intent("Do you accept insurance?") == 'faq_question'
+>       assert agent._classify_intent("What's your cancellation policy?") == 'faq_question'
+E       AssertionError: assert 'cancel_request' == 'faq_question'
+E         - faq_question
+E         + cancel_request
+
+tests\test_conversation_agent.py:46: AssertionError
+_______________ TestEdgeCases.test_database_connection_failures _______________
+
+self = <tests.test_edge_cases.TestEdgeCases object at 0x000001F66E143AF0>
+client = <starlette.testclient.TestClient object at 0x000001F66E286970>
+
+    def test_database_connection_failures(self, client):
+        """Test handling when database operations fail"""
+        # This would require mocking database failures
+        # For now, test with invalid booking IDs that don't exist
+    
+        invalid_ids = [
+            "",
+            "INVALID",
+            "APT999999999",
+            "not-a-number",
+            "APT-123",
+            "APT 123"
+        ]
+    
+        for booking_id in invalid_ids:
+            response = client.get(f"/api/appointments/{booking_id}")
+            # Should return 400 for invalid IDs
+>           assert response.status_code in [400, 404, 422, 500]
+E           assert 200 in [400, 404, 422, 500]
+E            +  where 200 = <Response [200 OK]>.status_code
+
+tests\test_edge_cases.py:294: AssertionError
+_______________ TestIntegration.test_complete_booking_workflow ________________
+
+self = <tests.test_integration.TestIntegration object at 0x000001F66E109810>
+client = <starlette.testclient.TestClient object at 0x000001F66E284C90>
+
+    def test_complete_booking_workflow(self, client):
+        """Test complete booking workflow from start to finish"""
+        # Step 1: Initial greeting
+        response = client.post("/api/chat", json={"message": "Hello"})
+        assert response.status_code == 200
+        data = response.json()
+>       assert "scheduling assistant" in data["response"].lower()
+E       assert 'scheduling assistant' in "i'd be happy to help you schedule an appointment. we offer:\n• general consultation (30 min)\n• follow-up (15 min)\n• physical exam (45 min)\n• specialist consultation (60 min)\n\nwhat type of appointment would you like?"
+E        +  where "i'd be happy to help you schedule an appointment. we offer:\n• general consultation (30 min)\n• follow-up (15 min)\n• physical exam (45 min)\n• specialist consultation (60 min)\n\nwhat type of appointment would you like?" = <built-in method lower of str object at 0x000001F66B7C8360>()
+E        +    where <built-in method lower of str object at 0x000001F66B7C8360> = "I'd be happy to help you schedule an appointment. We offer:\n• General Consultation (30 min)\n• Follow-up (15 min)\n• Physical Exam (45 min)\n• Specialist Consultation (60 min)\n\nWhat type of appointment would you like?".lower
+
+tests\test_integration.py:35: AssertionError
+__________________ TestIntegration.test_reschedule_workflow ___________________
+
+self = <tests.test_integration.TestIntegration object at 0x000001F66E012060>
+client = <starlette.testclient.TestClient object at 0x000001F66E287AF0>
+
+    def test_reschedule_workflow(self, client):
+        """Test appointment reschedule workflow"""
+        # First create a booking
+        booking_response = client.post("/api/book", json={
+            "appointment_type": "General Consultation",
+            "start_time": "2025-11-01T10:00:00Z",
+            "patient_info": {
+                "name": "Jane Doe",
+                "phone": "555-987-6543",
+                "email": "jane@email.com"
+            }
+        })
+        assert booking_response.status_code == 200
+        booking_data = booking_response.json()
+        booking_id = booking_data["booking_id"]
+    
+        # Now test reschedule via chat
+        response = client.post("/api/chat", json={"message": "I need to reschedule my appointment"})
+        assert response.status_code == 200
+        data = response.json()
+>       assert "reschedule" in data["response"].lower()
+E       assert 'reschedule' in "i'd be happy to help you schedule an appointment. we offer:\n• general consultation (30 min)\n• follow-up (15 min)\n• physical exam (45 min)\n• specialist consultation (60 min)\n\nwhat type of appointment would you like?"
+E        +  where "i'd be happy to help you schedule an appointment. we offer:\n• general consultation (30 min)\n• follow-up (15 min)\n• physical exam (45 min)\n• specialist consultation (60 min)\n\nwhat type of appointment would you like?" = <built-in method lower of str object at 0x000001F6684E0FC0>()
+E        +    where <built-in method lower of str object at 0x000001F6684E0FC0> = "I'd be happy to help you schedule an appointment. We offer:\n• General Consultation (30 min)\n• Follow-up (15 min)\n• Physical Exam (45 min)\n• Specialist Consultation (60 min)\n\nWhat type of appointment would you like?".lower
+
+tests\test_integration.py:127: AssertionError
+____________________ TestIntegration.test_cancel_workflow _____________________
+
+self = <tests.test_integration.TestIntegration object at 0x000001F66E012190>
+client = <starlette.testclient.TestClient object at 0x000001F66E286F90>
+
+    def test_cancel_workflow(self, client):
+        """Test appointment cancellation workflow"""
+        # Create a booking first
+        booking_response = client.post("/api/book", json={
+            "appointment_type": "Follow-up",
+            "start_time": "2025-11-01T15:00:00Z",
+            "patient_info": {
+                "name": "Bob Wilson",
+                "phone": "555-456-7890",
+                "email": "bob@email.com"
+            }
+        })
+        assert booking_response.status_code == 200
+        booking_data = booking_response.json()
+        booking_id = booking_data["booking_id"]
+    
+        # Test cancel via chat
+        response = client.post("/api/chat", json={"message": "I want to cancel my appointment"})
+        assert response.status_code == 200
+        data = response.json()
+>       assert "cancel" in data["response"].lower()
+E       assert 'cancel' in "i'd be happy to help you schedule an appointment. we offer:\n• general consultation (30 min)\n• follow-up (15 min)\n• physical exam (45 min)\n• specialist consultation (60 min)\n\nwhat type of appointment would you like?"
+E        +  where "i'd be happy to help you schedule an appointment. we offer:\n• general consultation (30 min)\n• follow-up (15 min)\n• physical exam (45 min)\n• specialist consultation (60 min)\n\nwhat type of appointment would you like?" = <built-in method lower of str object at 0x000001F66CEC3F70>()
+E        +    where <built-in method lower of str object at 0x000001F66CEC3F70> = "I'd be happy to help you schedule an appointment. We offer:\n• General Consultation (30 min)\n• Follow-up (15 min)\n• Physical Exam (45 min)\n• Specialist Consultation (60 min)\n\nWhat type of appointment would you like?".lower
+
+tests\test_integration.py:161: AssertionError
+_______________ TestIntegration.test_multiple_appointment_types _______________
+
+self = <tests.test_integration.TestIntegration object at 0x000001F66E11E0F0>
+client = <starlette.testclient.TestClient object at 0x000001F66E3309F0>
+
+    def test_multiple_appointment_types(self, client):
+        """Test booking different appointment types"""
+        appointment_types = [
+            ("General Consultation", 30),
+            ("Follow-up", 15),
+            ("Physical Exam", 45),
+            ("Specialist Consultation", 60)
+        ]
+    
+        for apt_type, expected_duration in appointment_types:
+            # Test via chat
+            response = client.post("/api/chat", json={"message": f"I need a {apt_type.lower()}"})
+            assert response.status_code == 200
+            data = response.json()
+>           assert apt_type in data["response"]
+E           AssertionError: assert 'Follow-up' in 'Based on your preference, here are the next available slots for your General Consultation:\n\n1. Monday, November 03 ...:00 AM\n\nWhich time slot works best for you? Please reply with the number (1-5) or let me know if none of these work.'
+
+tests\test_integration.py:183: AssertionError
+_____________________ TestIntegration.test_error_recovery _____________________
+
+self = <tests.test_integration.TestIntegration object at 0x000001F66E121950>
+client = <starlette.testclient.TestClient object at 0x000001F66E331A90>
+
+    def test_error_recovery(self, client):
+        """Test error recovery and edge cases"""
+        # Test with invalid appointment type
+        response = client.post("/api/availability", data={
+            "appointment_type": "Invalid Type"
+        })
+        # Should handle gracefully
+>       assert response.status_code in [200, 400]
+E       assert 405 in [200, 400]
+E        +  where 405 = <Response [405 Method Not Allowed]>.status_code
+
+tests\test_integration.py:249: AssertionError
+__________________ TestIntegration.test_context_persistence ___________________
+
+self = <tests.test_integration.TestIntegration object at 0x000001F66E066300>
+client = <starlette.testclient.TestClient object at 0x000001F66E285C50>
+
+    def test_context_persistence(self, client):
+        """Test that conversation context persists correctly"""
+        # Start a conversation
+        response1 = client.post("/api/chat", json={"message": "Hello"})
+        context1 = response1.json()["context"]
+    
+        # Continue with context
+        response2 = client.post("/api/chat", json={
+            "message": "I want to book",
+            "context": context1
+        })
+        context2 = response2.json()["context"]
+    
+        # Context should evolve
+>       assert context1["current_context"] == "greeting"
+E       AssertionError: assert 'slot_recommendation' == 'greeting'
+E         - greeting
+E         + slot_recommendation
+
+tests\test_integration.py:320: AssertionError
+________________ TestIntegration.test_end_to_end_user_journey _________________
+
+self = <tests.test_integration.TestIntegration object at 0x000001F66E140AD0>
+client = <starlette.testclient.TestClient object at 0x000001F66E285010>
+
+    def test_end_to_end_user_journey(self, client):
+        """Test complete end-to-end user journey"""
+        # 1. User greets the system
+        response = client.post("/api/chat", json={"message": "Hi there"})
+        assert response.status_code == 200
+        assert "scheduling assistant" in response.json()["response"].lower()
+    
+        # 2. User asks about hours (FAQ)
+        response = client.post("/api/chat", json={"message": "What time do you open?"})
+        assert response.status_code == 200
+        assert "hours" in response.json()["response"].lower()
+    
+        # 3. User decides to book
+        response = client.post("/api/chat", json={"message": "I'd like to schedule an appointment"})
+        assert response.status_code == 200
+        data = response.json()
+        assert data["intent"] == "booking_request"
+    
+        # 4. User specifies type
+        response = client.post("/api/chat", json={
+            "message": "I need a physical exam",
+            "context": data["context"]
+        })
+        assert response.status_code == 200
+>       assert "Physical Exam" in response.json()["response"]
+E       AssertionError: assert 'Physical Exam' in 'Based on your preference, here are the next available slots for your General Consultation:\n\n1. Monday, November 03 ...:00 AM\n\nWhich time slot works best for you? Please reply with the number (1-5) or let me know if none of these work.'
+
+tests\test_integration.py:397: AssertionError
+============================== warnings summary ===============================
+..\..\AppData\Local\Programs\Python\Python313\Lib\site-packages\starlette\formparsers.py:12
+  C:\Users\deepa\AppData\Local\Programs\Python\Python313\Lib\site-packages\starlette\formparsers.py:12: PendingDeprecationWarning: Please use `import python_multipart` instead.
+    import multipart
+
+backend\models\appointment.py:129
+  c:\Users\deepa\Documents\MedAppAuto\tests\..\backend\models\appointment.py:129: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.8/migration/
+    @validator('email')
+
+backend\models\appointment.py:135
+  c:\Users\deepa\Documents\MedAppAuto\tests\..\backend\models\appointment.py:135: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.8/migration/
+    @validator('phone')
+
+..\..\AppData\Local\Programs\Python\Python313\Lib\site-packages\pydantic\_internal\_config.py:291
+..\..\AppData\Local\Programs\Python\Python313\Lib\site-packages\pydantic\_internal\_config.py:291
+..\..\AppData\Local\Programs\Python\Python313\Lib\site-packages\pydantic\_internal\_config.py:291
+  C:\Users\deepa\AppData\Local\Programs\Python\Python313\Lib\site-packages\pydantic\_internal\_config.py:291: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.8/migration/
+    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)
+
+..\..\AppData\Local\Programs\Python\Python313\Lib\site-packages\pydantic\_internal\_generate_schema.py:273
+..\..\AppData\Local\Programs\Python\Python313\Lib\site-packages\pydantic\_internal\_generate_schema.py:273
+..\..\AppData\Local\Programs\Python\Python313\Lib\site-packages\pydantic\_internal\_generate_schema.py:273
+..\..\AppData\Local\Programs\Python\Python313\Lib\site-packages\pydantic\_internal\_generate_schema.py:273
+..\..\AppData\Local\Programs\Python\Python313\Lib\site-packages\pydantic\_internal\_generate_schema.py:273
+..\..\AppData\Local\Programs\Python\Python313\Lib\site-packages\pydantic\_internal\_generate_schema.py:273
+..\..\AppData\Local\Programs\Python\Python313\Lib\site-packages\pydantic\_internal\_generate_schema.py:273
+..\..\AppData\Local\Programs\Python\Python313\Lib\site-packages\pydantic\_internal\_generate_schema.py:273
+  C:\Users\deepa\AppData\Local\Programs\Python\Python313\Lib\site-packages\pydantic\_internal\_generate_schema.py:273: PydanticDeprecatedSince20: `json_encoders` is deprecated. See https://docs.pydantic.dev/2.8/concepts/serialization/#custom-serializers for alternatives. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.8/migration/
+    warnings.warn(
+
+backend\main.py:285
+  c:\Users\deepa\Documents\MedAppAuto\backend\main.py:285: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+..\..\AppData\Local\Programs\Python\Python313\Lib\site-packages\fastapi\applications.py:4495
+  C:\Users\deepa\AppData\Local\Programs\Python\Python313\Lib\site-packages\fastapi\applications.py:4495: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)
+
+tests\test_conversation_agent.py:223
+  c:\Users\deepa\Documents\MedAppAuto\tests\test_conversation_agent.py:223: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+tests\test_conversation_agent.py:240
+  c:\Users\deepa\Documents\MedAppAuto\tests\test_conversation_agent.py:240: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+tests\test_conversation_agent.py:253
+  c:\Users\deepa\Documents\MedAppAuto\tests\test_conversation_agent.py:253: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+tests\test_conversation_agent.py:262
+  c:\Users\deepa\Documents\MedAppAuto\tests\test_conversation_agent.py:262: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+tests\test_integration.py:350
+  c:\Users\deepa\Documents\MedAppAuto\tests\test_integration.py:350: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+tests/test_api_endpoints.py::TestAPIEndpoints::test_chat_endpoint_invalid_json
+tests/test_edge_cases.py::TestEdgeCases::test_malformed_json_payloads
+tests/test_edge_cases.py::TestEdgeCases::test_malformed_json_payloads
+tests/test_edge_cases.py::TestEdgeCases::test_malformed_json_payloads
+tests/test_edge_cases.py::TestEdgeCases::test_malformed_json_payloads
+tests/test_edge_cases.py::TestEdgeCases::test_malformed_json_payloads
+tests/test_edge_cases.py::TestEdgeCases::test_malformed_json_payloads
+tests/test_edge_cases.py::TestEdgeCases::test_malformed_json_payloads
+  C:\Users\deepa\AppData\Local\Programs\Python\Python313\Lib\site-packages\httpx\_models.py:408: DeprecationWarning: Use 'content=<...>' to upload raw bytes/text content.
+    headers, stream = encode_request(
+
+tests/test_conversation_agent.py::TestConversationAgent::test_process_message_basic_flow
+tests/test_conversation_agent.py::TestConversationAgent::test_process_message_booking_flow
+tests/test_conversation_agent.py::TestConversationAgent::test_process_message_faq_flow
+tests/test_conversation_agent.py::TestConversationAgent::test_process_message_error_handling
+tests/test_integration.py::TestIntegration::test_async_endpoints
+  C:\Users\deepa\AppData\Local\Programs\Python\Python313\Lib\site-packages\_pytest\python.py:183: PytestUnhandledCoroutineWarning: async def functions are not natively supported and have been skipped.
+  You need to install a suitable plugin for your async framework, for example:
+    - anyio
+    - pytest-asyncio
+    - pytest-tornasync
+    - pytest-trio
+    - pytest-twisted
+    warnings.warn(PytestUnhandledCoroutineWarning(msg.format(nodeid)))
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_conversation_agent.py::TestConversationAgent::test_intent_classification_booking
+FAILED tests/test_conversation_agent.py::TestConversationAgent::test_intent_classification_faq
+FAILED tests/test_edge_cases.py::TestEdgeCases::test_database_connection_failures
+FAILED tests/test_integration.py::TestIntegration::test_complete_booking_workflow
+FAILED tests/test_integration.py::TestIntegration::test_reschedule_workflow
+FAILED tests/test_integration.py::TestIntegration::test_cancel_workflow - ass...
+FAILED tests/test_integration.py::TestIntegration::test_multiple_appointment_types
+FAILED tests/test_integration.py::TestIntegration::test_error_recovery - asse...
+FAILED tests/test_integration.py::TestIntegration::test_context_persistence
+FAILED tests/test_integration.py::TestIntegration::test_end_to_end_user_journey
+============ 10 failed, 67 passed, 5 skipped, 34 warnings in 5.22s ============
