@@ -71,6 +71,15 @@ class AvailabilityRequest(BaseModel):
 class AvailabilityResponse(BaseModel):
     slots: List[Dict[str, Any]] = Field(..., description="Available time slots")
 
+class AppointmentTypesResponse(BaseModel):
+    types: List[Dict[str, Any]] = Field(..., description="Appointment types")
+
+class DoctorsResponse(BaseModel):
+    doctors: List[Dict[str, Any]] = Field(..., description="Doctors")
+
+class ClinicInfoResponse(BaseModel):
+    clinic: Dict[str, Any] = Field(..., description="Clinic information")
+
 class BookingRequest(BaseModel):
     appointment_type: str = Field(..., description="Type of appointment")
     start_time: str = Field(..., description="Start time in ISO format")
@@ -342,6 +351,51 @@ async def get_appointment_endpoint(appointment_id: str):
         logger.error(f"Get appointment endpoint error: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
+@app.get("/api/appointment-types")
+async def get_appointment_types_endpoint():
+    """Get all available appointment types"""
+    try:
+        types = await database_service.get_appointment_types()
+        return {"types": types}
+    except Exception as e:
+        logger.error(f"Appointment types endpoint error: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@app.get("/api/doctors")
+async def get_doctors_endpoint():
+    """Get all available doctors"""
+    try:
+        doctors = await database_service.get_doctors()
+        return {"doctors": doctors}
+    except Exception as e:
+        logger.error(f"Doctors endpoint error: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@app.get("/api/clinic-info")
+async def get_clinic_info_endpoint():
+    """Get clinic information"""
+    try:
+        clinic_info = await database_service.get_clinic_info()
+        if not clinic_info:
+            # Return default clinic info if none exists
+            return {
+                "clinic": {
+                    "name": "Medical Center",
+                    "address": "123 Medical Drive",
+                    "phone": "555-123-4567",
+                    "email": "info@medicalcenter.com",
+                    "timezone": "America/New_York",
+                    "policies": {},
+                    "services": ["General Consultation", "Follow-up", "Physical Exam"],
+                    "insurance_accepted": ["Blue Cross", "Aetna"],
+                    "languages_spoken": ["English", "Spanish"]
+                }
+            }
+        return {"clinic": clinic_info}
+    except Exception as e:
+        logger.error(f"Clinic info endpoint error: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
 @app.get("/api/mock-data")
 async def mock_data_endpoint():
     """Mock data endpoint for testing"""
@@ -382,9 +436,43 @@ async def swagger_docs_endpoint():
                 "get": {"summary": "Get appointment"},
                 "put": {"summary": "Reschedule appointment"},
                 "delete": {"summary": "Cancel appointment"}
-            }
+            },
+            "/api/appointment-types": {"get": {"summary": "Get appointment types"}},
+            "/api/doctors": {"get": {"summary": "Get doctors"}},
+            "/api/clinic-info": {"get": {"summary": "Get clinic information"}}
         }
     }
+
+# Admin endpoints for managing dynamic data
+@app.post("/api/admin/appointment-types")
+async def create_appointment_type_endpoint(appointment_type: Dict[str, Any]):
+    """Create a new appointment type (Admin only)"""
+    try:
+        created_type = await database_service.create_appointment_type(appointment_type)
+        return created_type
+    except Exception as e:
+        logger.error(f"Create appointment type error: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@app.post("/api/admin/doctors")
+async def create_doctor_endpoint(doctor: Dict[str, Any]):
+    """Create a new doctor (Admin only)"""
+    try:
+        created_doctor = await database_service.create_doctor(doctor)
+        return created_doctor
+    except Exception as e:
+        logger.error(f"Create doctor error: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@app.put("/api/admin/clinic-info")
+async def update_clinic_info_endpoint(clinic_data: Dict[str, Any]):
+    """Update clinic information (Admin only)"""
+    try:
+        updated_clinic = await database_service.update_clinic_info(clinic_data)
+        return updated_clinic
+    except Exception as e:
+        logger.error(f"Update clinic info error: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 # Error handlers
 @app.exception_handler(HTTPException)
