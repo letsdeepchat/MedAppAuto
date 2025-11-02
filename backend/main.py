@@ -16,6 +16,8 @@ from agent.conversation_agent import ConversationAgent
 from services.rag_service import RAGService
 from services.calendly_service import CalendlyService
 from services.database_service import DatabaseService
+from services.notification_service import NotificationService
+from services.analytics_service import AnalyticsService
 from tools.scheduling_logic import SchedulingLogic
 from models.appointment import Appointment, AppointmentCreate, AppointmentUpdate
 from config import settings
@@ -45,6 +47,8 @@ conversation_agent = ConversationAgent()
 rag_service = RAGService()
 calendly_service = CalendlyService()
 database_service = DatabaseService()
+notification_service = NotificationService()
+analytics_service = AnalyticsService(database_service)
 scheduling_logic = SchedulingLogic()
 
 # Pydantic models for API
@@ -198,6 +202,13 @@ async def booking_endpoint(request: BookingRequest, background_tasks: Background
         # Save to database
         created_appointment = await database_service.create_appointment(appointment_data)
 
+        # Send confirmation notification
+        background_tasks.add_task(
+            send_notification_background,
+            "confirmation",
+            created_appointment
+        )
+
         # Schedule Calendly event in background if configured
         if settings.CALENDLY_API_KEY:
             background_tasks.add_task(
@@ -303,7 +314,7 @@ async def reschedule_endpoint(appointment_id: str, request: BookingRequest):
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @app.delete("/api/appointments/{appointment_id}")
-async def cancel_endpoint(appointment_id: str, reason: Optional[str] = None):
+async def cancel_endpoint(appointment_id: str, reason: Optional[str] = None, background_tasks: BackgroundTasks = None):
     """Cancel an appointment"""
     try:
         # Basic validation
@@ -319,6 +330,13 @@ async def cancel_endpoint(appointment_id: str, reason: Optional[str] = None):
         cancelled = await database_service.cancel_appointment(appointment_id)
         if not cancelled:
             raise HTTPException(status_code=500, detail="Failed to cancel appointment")
+
+        # Send cancellation notification
+        background_tasks.add_task(
+            send_notification_background,
+            "cancellation",
+            existing_appointment
+        )
 
         # Cancel Calendly event if it exists
         if settings.CALENDLY_API_KEY and existing_appointment.get("calendly_event_id"):
@@ -474,6 +492,57 @@ async def update_clinic_info_endpoint(clinic_data: Dict[str, Any]):
         logger.error(f"Update clinic info error: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
+# Analytics endpoints
+@app.get("/api/analytics/appointments")
+async def get_appointment_analytics(start_date: Optional[str] = None, end_date: Optional[str] = None):
+    """Get appointment analytics"""
+    try:
+        metrics = await analytics_service.get_appointment_metrics(start_date, end_date)
+        return metrics
+    except Exception as e:
+        logger.error(f"Appointment analytics error: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@app.get("/api/analytics/doctors")
+async def get_doctor_analytics(doctor_id: Optional[str] = None, days: int = 30):
+    """Get doctor performance analytics"""
+    try:
+        performance = await analytics_service.get_doctor_performance(doctor_id, days)
+        return performance
+    except Exception as e:
+        logger.error(f"Doctor analytics error: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@app.get("/api/analytics/clinic")
+async def get_clinic_analytics(days: int = 30):
+    """Get clinic efficiency analytics"""
+    try:
+        efficiency = await analytics_service.get_clinic_efficiency(days)
+        return efficiency
+    except Exception as e:
+        logger.error(f"Clinic analytics error: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@app.get("/api/analytics/revenue")
+async def get_revenue_analytics(start_date: Optional[str] = None, end_date: Optional[str] = None):
+    """Get revenue analytics"""
+    try:
+        revenue = await analytics_service.get_revenue_report(start_date, end_date)
+        return revenue
+    except Exception as e:
+        logger.error(f"Revenue analytics error: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@app.get("/api/analytics/dashboard")
+async def get_dashboard_summary():
+    """Get dashboard summary data"""
+    try:
+        summary = await analytics_service.get_dashboard_summary()
+        return summary
+    except Exception as e:
+        logger.error(f"Dashboard summary error: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
 # Error handlers
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request, exc):
@@ -490,7 +559,7 @@ async def general_exception_handler(request, exc):
         content={"detail": "Internal server error"}
     )
 
-# Background task for Calendly event creation
+# Background tasks
 async def create_calendly_event_background(booking_id: str, appointment_type: str,
                                          start_time: str, patient_info: Dict[str, str]):
     """Background task to create Calendly event"""
@@ -508,6 +577,21 @@ async def create_calendly_event_background(booking_id: str, appointment_type: st
         logger.info(f"Calendly event created for booking {booking_id}")
     except Exception as e:
         logger.error(f"Failed to create Calendly event for booking {booking_id}: {e}")
+
+async def send_notification_background(notification_type: str, appointment: Dict[str, Any]):
+    """Background task to send notifications"""
+    try:
+        if notification_type == "confirmation":
+            await notification_service.send_appointment_confirmation(appointment)
+        elif notification_type == "reminder":
+            hours_before = appointment.get("hours_before", 24)
+            await notification_service.send_appointment_reminder(appointment, hours_before)
+        elif notification_type == "cancellation":
+            await notification_service.send_appointment_cancellation(appointment)
+
+        logger.info(f"Notification sent: {notification_type} for booking {appointment.get('booking_id')}")
+    except Exception as e:
+        logger.error(f"Failed to send {notification_type} notification: {e}")
 
 # Startup event
 @app.on_event("startup")
