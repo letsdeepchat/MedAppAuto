@@ -18,6 +18,7 @@ from services.calendly_service import CalendlyService
 from services.database_service import DatabaseService
 from services.notification_service import NotificationService
 from services.analytics_service import AnalyticsService
+from services.scheduling_service import SchedulingService
 from tools.scheduling_logic import SchedulingLogic
 from models.appointment import Appointment, AppointmentCreate, AppointmentUpdate
 from config import settings
@@ -49,6 +50,7 @@ calendly_service = CalendlyService()
 database_service = DatabaseService()
 notification_service = NotificationService()
 analytics_service = AnalyticsService(database_service)
+scheduling_service = SchedulingService(database_service)
 scheduling_logic = SchedulingLogic()
 
 # Pydantic models for API
@@ -135,14 +137,35 @@ async def availability_endpoint(appointment_type: str, preferred_date: Optional[
         if not appointment_type:
             raise HTTPException(status_code=400, detail="Appointment type is required")
 
-        # Use database service to get available slots
+        # Get appointment type details first
+        appointment_types = await database_service.get_appointment_types()
+        apt_type = next((t for t in appointment_types if t.get('name') == appointment_type), None)
+
+        if not apt_type:
+            raise HTTPException(status_code=400, detail="Invalid appointment type")
+
+        # Get doctors who handle this appointment type
+        doctors = await database_service.get_doctors()
+        available_doctors = [d for d in doctors if apt_type['id'] in d.get('appointment_types', [])]
+
+        if not available_doctors:
+            return {"slots": []}
+
+        # Use scheduling service to get available slots for the first available doctor
+        # In production, you might want to return slots for all doctors or let user choose
+        doctor_id = available_doctors[0]['id']
+
         if preferred_date:
-            slots = await database_service.get_available_slots(appointment_type, preferred_date)
+            slots = await scheduling_service.find_available_slots(
+                doctor_id, apt_type['id'], preferred_date, apt_type.get('duration_minutes', 30)
+            )
         else:
             # Default to today if no date provided
             from datetime import datetime
             today = datetime.now().strftime("%Y-%m-%d")
-            slots = await database_service.get_available_slots(appointment_type, today)
+            slots = await scheduling_service.find_available_slots(
+                doctor_id, apt_type['id'], today, apt_type.get('duration_minutes', 30)
+            )
 
         return {"slots": slots}
     except HTTPException:
@@ -163,14 +186,14 @@ async def booking_endpoint(request: BookingRequest, background_tasks: Background
         appointment_type = request.appointment_type
         start_time = request.start_time
 
-        # Calculate end time based on appointment type
-        duration_map = {
-            "General Consultation": 30,
-            "Follow-up": 15,
-            "Physical Exam": 45,
-            "Specialist Consultation": 60
-        }
-        duration = duration_map.get(appointment_type, 30)
+        # Get appointment type details
+        appointment_types = await database_service.get_appointment_types()
+        apt_type = next((t for t in appointment_types if t.get('name') == appointment_type), None)
+
+        if not apt_type:
+            raise HTTPException(status_code=400, detail="Invalid appointment type")
+
+        duration = apt_type.get('duration_minutes', 30)
 
         from datetime import datetime, timedelta
         from dateutil import parser
@@ -248,17 +271,16 @@ async def reschedule_endpoint(appointment_id: str, request: BookingRequest):
         if not existing_appointment:
             raise HTTPException(status_code=404, detail="Appointment not found")
 
-        # Check availability for new time
+        # Get appointment type details
+        appointment_types = await database_service.get_appointment_types()
+        apt_type = next((t for t in appointment_types if t.get('name') == request.appointment_type), None)
+
+        if not apt_type:
+            raise HTTPException(status_code=400, detail="Invalid appointment type")
+
         appointment_type = request.appointment_type
         start_time = request.start_time
-
-        duration_map = {
-            "General Consultation": 30,
-            "Follow-up": 15,
-            "Physical Exam": 45,
-            "Specialist Consultation": 60
-        }
-        duration = duration_map.get(appointment_type, 30)
+        duration = apt_type.get('duration_minutes', 30)
 
         from datetime import timedelta
         from dateutil import parser
@@ -314,7 +336,7 @@ async def reschedule_endpoint(appointment_id: str, request: BookingRequest):
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @app.delete("/api/appointments/{appointment_id}")
-async def cancel_endpoint(appointment_id: str, reason: Optional[str] = None, background_tasks: BackgroundTasks = None):
+async def cancel_endpoint(appointment_id: str, background_tasks: BackgroundTasks, reason: Optional[str] = None):
     """Cancel an appointment"""
     try:
         # Basic validation
